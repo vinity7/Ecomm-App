@@ -1,31 +1,27 @@
-# Node version-package we are using to build the application
-FROM   node:18-alpine 
+# Builder stage: install dependencies and build
+FROM node:18-alpine AS builder
 
 # Set up the work directory
-WORKDIR/app
+WORKDIR /app
 
-# Copy the package files
+# Copy package manifests and install deps
 COPY package*.json ./
+RUN npm install
 
-
-# run the install command
+# Copy source and build
 COPY . .
+RUN npm run build
 
-
-
-# copy the entire code base
-RUN npm run build 
-
-
-# run the build command
+# Development runtime (optional)
 FROM node:alpine AS development
+WORKDIR /app
+COPY --from=builder /app .
+CMD ["npm","run","dev"]
 
-
-# something different  
+# Production runtime using nginx
 FROM nginx:alpine AS production
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
