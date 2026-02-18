@@ -2,18 +2,23 @@
 FROM  AS builder
 
 # Set up the work directory
-
+WORKDIR/app
 
 # Copy the package files
+COPY package*.json ./
 
 
 # run the install command
+COPY . .
+
 
 
 # copy the entire code base
+RUN npm run build 
 
 
 # run the build command
+FROM node:alpine AS development
 
 
 # something different  
